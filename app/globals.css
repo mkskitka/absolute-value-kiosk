@@ -1,0 +1,231 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* ── Primary Palette ── */
+  --color-primary: #9cff93;
+  --color-primary-dim: #00ec3b;
+  --color-primary-container: #00fc40;
+  --color-on-primary: #006413;
+  --color-on-primary-container: #005a10;
+
+  /* ── Secondary / Error Palette ── */
+  --color-secondary: #ff725e;
+  --color-secondary-dim: #eb0000;
+  --color-secondary-container: #c00100;
+  --color-on-secondary: #4a0000;
+
+  /* ── Neon Signals ── */
+  --color-neon-green: #00FF41;
+  --color-neon-red: #FF3131;
+
+  /* ── Surface Tiers ── */
+  --color-background: #0e0e0e;
+  --color-surface: #0e0e0e;
+  --color-surface-dim: #0e0e0e;
+  --color-surface-bright: #2c2c2c;
+  --color-surface-container-lowest: #000000;
+  --color-surface-container-low: #131313;
+  --color-surface-container: #191919;
+  --color-surface-container-high: #1f1f1f;
+  --color-surface-container-highest: #262626;
+  --color-surface-variant: #262626;
+
+  /* ── On Surface ── */
+  --color-on-surface: #ffffff;
+  --color-on-surface-variant: #ababab;
+  --color-on-background: #ffffff;
+
+  /* ── Outline ── */
+  --color-outline: #757575;
+  --color-outline-variant: #484848;
+
+  /* ── Tertiary ── */
+  --color-tertiary: #c1fffe;
+  --color-tertiary-dim: #00e6e6;
+  --color-tertiary-container: #00ffff;
+
+  /* ── Error ── */
+  --color-error: #ff7351;
+  --color-error-dim: #d53d18;
+  --color-error-container: #b92902;
+  --color-on-error: #450900;
+
+  /* ── Inverse ── */
+  --color-inverse-surface: #f9f9f9;
+  --color-inverse-on-surface: #555555;
+  --color-inverse-primary: #006f16;
+
+  /* ── Surface Tint ── */
+  --color-surface-tint: #9cff93;
+
+  /* ── Font Families ── */
+  --font-pixel: "Press Start 2P", cursive;
+  --font-retro: "VT323", monospace;
+  --font-body: "Space Grotesk", sans-serif;
+
+  /* ── Border Radius (0px everywhere for pixel aesthetic) ── */
+  --radius-sm: 0px;
+  --radius: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-2xl: 0px;
+  --radius-full: 9999px;
+}
+
+/* ── Base Styles ── */
+body {
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* ── Material Symbols ── */
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+}
+
+/* ── CRT Effects ── */
+.crt-glow {
+  text-shadow: 0 0 10px rgba(156, 255, 147, 0.5);
+}
+
+.text-glow-green {
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+}
+
+.text-glow-red {
+  text-shadow: 0 0 8px rgba(255, 49, 49, 0.6);
+}
+
+/* ── Pixel Rendering ── */
+.pixel-image {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* ── Pixel Borders ── */
+.pixel-border {
+  border: 4px solid white;
+}
+
+.pixel-border-green {
+  box-shadow: 4px 4px 0px 0px #00ff41;
+}
+
+.pixel-border-red {
+  box-shadow: 4px 4px 0px 0px #ff3131;
+}
+
+/* ── Custom Scrollbar ── */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #000;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #fff;
+}
+
+/* ── Active Press Effect ── */
+.active-interaction:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px 0px transparent;
+}
+
+/* ── Uppercase for kiosk text ── */
+.kiosk-text {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ── Selection highlight colors ── */
+.selected-red {
+  background-color: #ff725e !important;
+  color: #000000 !important;
+  box-shadow: 8px 8px 0px 0px rgba(255, 114, 94, 0.3);
+}
+
+.selected-red span,
+.selected-red div {
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+.selected-red .stock-icon {
+  stroke: #000000 !important;
+}
+
+.selected-green {
+  background-color: #9cff93 !important;
+  color: #000000 !important;
+  box-shadow: 8px 8px 0px 0px rgba(156, 255, 147, 0.3);
+}
+
+.selected-green span,
+.selected-green div {
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+.selected-green .stock-icon {
+  stroke: #000000 !important;
+}
+
+/* ── Input styling ── */
+input::placeholder {
+  color: #555555;
+}
+
+/* ── Drink menu items ── */
+.drink-item {
+  border: 2px solid #ffffff;
+  margin-top: -2px;
+  position: relative;
+  z-index: 1;
+  transition: all 0.1s ease;
+}
+
+.drink-item.active {
+  z-index: 20;
+  border-width: 3px;
+}
+
+/* ── Stock icon SVGs ── */
+.stock-icon {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: square;
+}
+
+/* ── Scanline effect ── */
+.scanline-overlay {
+  background: linear-gradient(
+      rgba(18, 16, 16, 0) 50%,
+      rgba(0, 0, 0, 0.25) 50%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 0, 0, 0.06),
+      rgba(0, 255, 0, 0.02),
+      rgba(0, 0, 255, 0.06)
+    );
+  background-size: 100% 4px, 3px 100%;
+}
+
+/* ── Option button transition ── */
+.option-button {
+  transition: all 0.15s steps(4);
+}
