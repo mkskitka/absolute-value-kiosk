@@ -33,16 +33,13 @@
         input::placeholder { color: #555555; }
         .pixel-border { border: 4px solid white; }
         
-        /* Ensures the character image stays sharp and pixelated */
         .pixel-image {
             image-rendering: pixelated;
             image-rendering: crisp-edges;
         }
 
-        /* Selection Logic Styles */
         .option-button { transition: all 0.15s steps(4); }
         
-        /* When RED is selected */
         .selected-red {
             background-color: #ff725e !important;
             color: #000000 !important;
@@ -51,7 +48,6 @@
         .selected-red span, .selected-red div { color: #000000 !important; border-color: #000000 !important; }
         .selected-red .stock-icon { stroke: #000000 !important; }
 
-        /* When GREEN is selected */
         .selected-green {
             background-color: #9cff93 !important;
             color: #000000 !important;
@@ -80,7 +76,7 @@
             
             <div class="w-full space-y-4">
                 <label class="text-3xl block border-b-4 border-white pb-1">ENTER NAME</label>
-                <input class="w-full bg-transparent border-4 border-white text-5xl p-4 focus:ring-4 focus:ring-primary focus:outline-none uppercase" placeholder="NAME..." type="text"/>
+                <input id="player-name" class="w-full bg-transparent border-4 border-white text-5xl p-4 focus:ring-4 focus:ring-primary focus:outline-none uppercase" placeholder="NAME..." type="text"/>
             </div>
         </div>
 
@@ -136,14 +132,25 @@
         }
 
         function confirmSelection() {
+            // 1. Check the Name input
+            const playerName = document.getElementById('player-name').value.trim();
+            
+            // 2. Check the selection classes
             const redSelected = document.getElementById('btn-red').classList.contains('selected-red');
             const greenSelected = document.getElementById('btn-green').classList.contains('selected-green');
 
+            // Validation logic
+            if (playerName === "") {
+                alert("ACCESS DENIED: ENTER PLAYER NAME");
+                return; // Stop here
+            }
+
             if (!redSelected && !greenSelected) {
                 alert("ACCESS DENIED: SELECT STARTING FUNDS");
-                return;
+                return; // Stop here
             }
             
+            // If both checks pass, move to the next page
             window.location.href = '../drink_menu/code.html';
         }
     </script>
