@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "stitch_create_new_player",
+			"path": ".."
+		},
+		{
+			"name": "thank_you_simple_style",
+			"path": "../../../stitch_create_new_player/stitch_create_new_player/thank_you_simple_style"
+		}
+	],
+	"settings": {}
+}

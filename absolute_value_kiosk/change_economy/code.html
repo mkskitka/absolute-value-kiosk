@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "neon-green": "#00FF41",
+                        "neon-red": "#FF3131",
+                        "surface": "#000000",
+                    },
+                    fontFamily: {
+                        "pixel": ["VT323", "monospace"],
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'VT323', monospace;
+            /* REMOVED FIXED WIDTH/HEIGHT */
+            min-height: 100vh; 
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+        .pixel-border-green { box-shadow: 4px 4px 0px 0px #00FF41; }
+        .pixel-border-red { box-shadow: 4px 4px 0px 0px #FF3131; }
+        .text-glow-green { text-shadow: 0 0 8px rgba(0, 255, 65, 0.6); }
+        .text-glow-red { text-shadow: 0 0 8px rgba(255, 49, 49, 0.6); }
+        .active-interaction:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px 0px transparent;
+        }
+    </style>
+</head>
+<body class="bg-black text-white antialiased">
+    <main class="w-full min-h-screen flex flex-col items-center justify-center p-4 md:p-12">
+        
+        <section class="w-full max-w-5xl mb-8 md:mb-16 text-center">
+            <h1 class="text-4xl sm:text-5xl md:text-7xl tracking-widest mb-4 md:mb-6 leading-tight">
+                YOU ARE CURRENTLY ON THE LEADERBOARD
+            </h1>
+            <p class="text-xl md:text-2xl text-white opacity-70 tracking-[0.2em] md:tracking-[0.3em]">
+                CHOOSE 1:
+            </p>
+        </section>
+
+        <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 relative items-stretch">
+            
+            <div class="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-16 h-16 md:w-20 md:h-20 rounded-full bg-black border-2 border-white items-center justify-center text-xl md:text-2xl font-bold">
+                OR
+            </div>
+
+            <div class="bg-black p-6 md:p-10 border-2 border-white relative flex flex-col">
+                <div class="absolute -top-4 md:-top-6 left-4 bg-neon-green text-black px-3 py-0.5 md:px-4 md:py-1 text-lg md:text-xl font-bold italic">
+                    ZONE: LEADER
+                </div>
+                <h2 class="text-4xl md:text-6xl text-neon-green text-glow-green mb-8 md:mb-16 text-center tracking-tighter">WAGES</h2>
+                <div class="flex flex-col gap-4 md:gap-8 flex-1 justify-center">
+                    <button onclick="window.location.href='../thank_you/code.html';" class="active-interaction flex flex-col items-center justify-center py-6 md:py-10 bg-neon-green text-black text-3xl md:text-4xl font-bold pixel-border-green border-2 border-neon-green">
+                        <span class="material-symbols-outlined text-5xl md:text-6xl mb-1" style="font-variation-settings: 'FILL' 1;">keyboard_double_arrow_up</span>
+                        RAISE
+                    </button>
+                    <button onclick="window.location.href='../thank_you/code.html';" class="active-interaction flex flex-col items-center justify-center py-6 md:py-10 bg-transparent text-neon-green text-3xl md:text-4xl font-bold pixel-border-green border-2 border-neon-green hover:bg-neon-green hover:text-black transition-colors">
+                        <span class="material-symbols-outlined text-5xl md:text-6xl mb-1">keyboard_double_arrow_down</span>
+                        LOWER
+                    </button>
+                </div>
+            </div>
+
+            <div class="md:hidden flex items-center justify-center py-2">
+                <div class="w-12 h-12 rounded-full border-2 border-white flex items-center justify-center text-lg font-bold">OR</div>
+            </div>
+
+            <div class="bg-black p-6 md:p-10 border-2 border-white relative flex flex-col">
+                <div class="absolute -top-4 md:-top-6 left-4 bg-neon-red text-black px-3 py-0.5 md:px-4 md:py-1 text-lg md:text-xl font-bold italic">
+                    ZONE: LUNDER
+                </div>
+                <h2 class="text-4xl md:text-6xl text-neon-red text-glow-red mb-8 md:mb-16 text-center tracking-tighter">DRINK PRICES</h2>
+                <div class="flex flex-col gap-4 md:gap-8 flex-1 justify-center">
+                    <button onclick="window.location.href='../thank_you/code.html';" class="active-interaction flex flex-col items-center justify-center py-6 md:py-10 bg-neon-red text-black text-3xl md:text-4xl font-bold pixel-border-red border-2 border-neon-red">
+                        <span class="material-symbols-outlined text-5xl md:text-6xl mb-1" style="font-variation-settings: 'FILL' 1;">keyboard_double_arrow_up</span>
+                        RAISE
+                    </button>
+                    <button onclick="window.location.href='../thank_you/code.html';" class="active-interaction flex flex-col items-center justify-center py-6 md:py-10 bg-transparent text-neon-red text-3xl md:text-4xl font-bold pixel-border-red border-2 border-neon-red hover:bg-neon-red hover:text-black transition-colors">
+                        <span class="material-symbols-outlined text-5xl md:text-6xl mb-1">keyboard_double_arrow_down</span>
+                        LOWER
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>
