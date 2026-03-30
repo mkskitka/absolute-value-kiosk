@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Absolute Value - Order Drink</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --neon-green: #00FF41;
+            --neon-red: #FF3131;
+        }
+
+        body {
+            background-color: #000000;
+            color: #FFFFFF;
+            font-family: 'VT323', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .text-neon-green { color: var(--neon-green); text-shadow: 0 0 8px rgba(0, 255, 65, 0.6); }
+        .text-neon-red { color: var(--neon-red); text-shadow: 0 0 8px rgba(255, 49, 49, 0.6); }
+        
+        .rank-line { width: 2px; background-color: #FFFFFF; position: relative; }
+        .rank-marker { position: absolute; left: -10px; width: 20px; height: 2px; background-color: #FFFFFF; }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #000; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #fff; }
+
+        /* Keeps pixel art sharp when scaled up */
+        .pixel-image { 
+            image-rendering: pixelated; 
+            image-rendering: crisp-edges;
+        }
+
+        .drink-item {
+            border: 2px solid #FFFFFF;
+            margin-top: -2px;
+            position: relative;
+            z-index: 1;
+            transition: all 0.1s ease;
+        }
+
+        .drink-item.active {
+            z-index: 20;
+            border-width: 3px;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
+
+    <h1 class="text-5xl md:text-7xl text-center mb-12">ORDER DRINK</h1>
+
+    <main class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+        
+        <div class="flex flex-col gap-12">
+            <section class="flex flex-col gap-4 border-l-4 border-white pl-6">
+                <div class="flex flex-col">
+                    <span class="text-xl opacity-70">Player :</span>
+                    <span class="text-5xl">Bubbles</span>
+                </div>
+                <div class="space-y-2 mt-4 text-3xl">
+                    <div class="flex justify-between">
+                        <span>Funds :</span>
+                        <span class="text-neon-green">1200$</span>
+                    </div>
+                    <div id="cost-row" class="flex justify-between invisible">
+                        <span>Drink Cost :</span>
+                        <span class="text-neon-red">-$<span id="display-price">0</span></span>
+                    </div>
+                    <div class="w-full h-px bg-white my-2"></div>
+                    <div class="flex justify-between">
+                        <span>Balance :</span>
+                        <span class="text-neon-green" id="display-balance">1200$</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="flex flex-col gap-6">
+                <h2 class="text-3xl tracking-widest border-b border-white pb-2 w-fit">Player Rank</h2>
+                <div class="flex items-start gap-8 py-4">
+                    <div class="flex flex-col items-center">
+                        <div class="text-xl mb-2">2000</div>
+                        <div class="rank-line h-64">
+                            <div class="rank-marker top-0"></div>
+                            <div class="absolute" style="top: 15%; left: 0;">
+                                <div class="w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-r-[12px] border-r-neon-green absolute right-full top-1/2 -translate-y-1/2 mr-2"></div>
+                                <div class="whitespace-nowrap ml-4 text-xl text-neon-green">#20</div>
+                            </div>
+                            <div class="rank-marker bottom-0"></div>
+                        </div>
+                        <div class="text-xl mt-2">-200</div>
+                    </div>
+                    <div class="text-7xl text-neon-green self-center">#20</div>
+                </div>
+            </section>
+        </div>
+
+        <div class="flex flex-col gap-8">
+            <section>
+                <h2 class="text-5xl mb-6 border-b-2 border-white pb-2 text-center md:text-left">Drink Menu</h2>
+                <div id="menu-list" class="grid grid-cols-1 max-h-[300px] overflow-y-auto custom-scrollbar border-b-2 border-white pb-[2px]">
+                    </div>
+            </section>
+
+            <div id="selection-area" class="hidden flex flex-col items-center gap-8 w-full">
+                
+                <div class="flex flex-row items-start justify-center gap-8 w-full">
+                    <div id="image-box" class="w-48 h-48 border-4 border-white flex items-center justify-center overflow-hidden transition-all duration-300 flex-shrink-0">
+                        <img id="drink-display" src="drink.png" alt="Drink Preview" class="w-full h-full object-cover pixel-image">
+                    </div>
+
+                    <div class="flex flex-col gap-2 min-w-[150px]">
+                        <h3 class="text-2xl border-b border-white/30 pb-1">Ingredients:</h3>
+                        <ul id="ingredients-list" class="text-xl space-y-1 text-white/80">
+                            </ul>
+                    </div>
+                </div>
+
+                <button id="order-btn" onclick="window.location.href='../change_economy/code.html';" class="w-full py-6 border-4 border-white bg-transparent hover:bg-white hover:text-black transition-all text-4xl active:scale-95">
+                    ORDER <span id="btn-drink-name"></span>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const drinks = [
+            { id: 0, name: "Vibez", base: "Gin", price: 50, color: "#FF3131", ingredients: ["London Dry Gin", "Tonic Water", "Lime Zest", "Neon Syrup"] },
+            { id: 1, name: "Sunrise", base: "Tequila", price: 65, color: "#00D1FF", ingredients: ["Blanco Tequila", "Orange Juice", "Grenadine", "Maraschino Cherry"] },
+            { id: 2, name: "Fizz", base: "Gin", price: 45, color: "#FF00FF", ingredients: ["Gin", "Egg White", "Lemon Juice", "Soda Water"] },
+            { id: 3, name: "Juicy", base: "NA", price: 20, color: "#FFFF00", ingredients: ["Pineapple Juice", "Mango Puree", "Coconut Milk"] },
+            { id: 4, name: "Glo", base: "Vodka", price: 55, color: "#00FFFF", ingredients: ["Premium Vodka", "Blue Curacao", "Lemonade", "Edible Glitter"] }
+        ];
+
+        let selectedIndex = -1;
+        const playerFunds = 1200;
+
+        function renderMenu() {
+            const menuContainer = document.getElementById('menu-list');
+            menuContainer.innerHTML = drinks.map((drink, index) => {
+                const isActive = selectedIndex === index;
+                const borderColor = isActive ? drink.color : '#FFFFFF';
+                const textColor = isActive ? drink.color : '#FFFFFF';
+                const glow = isActive ? `box-shadow: 0 0 15px ${drink.color};` : '';
+
+                return `
+                    <div onclick="selectDrink(${index})" 
+                         class="drink-item flex justify-between items-center p-4 cursor-pointer hover:bg-zinc-900 ${isActive ? 'active' : ''}"
+                         style="border-color: ${borderColor}; ${glow}">
+                        <span class="text-2xl transition-colors" style="color: ${textColor}">${drink.name} | ${drink.base}</span>
+                        <span class="text-2xl transition-colors" style="color: ${textColor}">$${drink.price}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectDrink(index) {
+            selectedIndex = index;
+            const drink = drinks[selectedIndex];
+            
+            document.getElementById('selection-area').classList.remove('hidden');
+            document.getElementById('cost-row').classList.remove('invisible');
+
+            document.getElementById('display-price').innerText = drink.price;
+            document.getElementById('display-balance').innerText = (playerFunds - drink.price) + "$";
+            
+            const imgBox = document.getElementById('image-box');
+            
+            // Dynamic Background Color update
+            imgBox.style.backgroundColor = drink.color;
+            imgBox.style.borderColor = drink.color;
+            imgBox.style.boxShadow = `0 0 20px ${drink.color}88`;
+
+            const listContainer = document.getElementById('ingredients-list');
+            listContainer.innerHTML = drink.ingredients.map(ing => `<li>- ${ing}</li>`).join('');
+
+            document.getElementById('btn-drink-name').innerText = `${drink.name} FOR $${drink.price}`;
+
+            renderMenu();
+        }
+
+        renderMenu();
+    </script>
+</body>
+</html>

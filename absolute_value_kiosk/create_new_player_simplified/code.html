@@ -1,96 +1,151 @@
 <!DOCTYPE html>
-
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Absolute Value - Create New Player</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=VT323&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Absolute Value - Create New Player</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
       tailwind.config = {
         darkMode: "class",
         theme: {
           extend: {
             colors: {
-              "primary": "#9cff93",
-              "secondary": "#ff725e",
+              "primary": "#9cff93",   /* Neon Green */
+              "secondary": "#ff725e", /* Neon Red */
               "background": "#000000",
             },
             fontFamily: {
               "pixel": ["VT323", "monospace"],
             },
-            borderRadius: {
-                "none": "0px",
-            }
           },
         },
       }
     </script>
-<style>
+    <style>
         body {
             background-color: #000000;
             color: #ffffff;
             font-family: 'VT323', monospace;
             text-transform: uppercase;
         }
-        input::placeholder {
-            color: #555555;
+        input::placeholder { color: #555555; }
+        .pixel-border { border: 4px solid white; }
+        
+        /* Ensures the character image stays sharp and pixelated */
+        .pixel-image {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
         }
-        .pixel-border {
-            border: 4px solid white;
+
+        /* Selection Logic Styles */
+        .option-button { transition: all 0.15s steps(4); }
+        
+        /* When RED is selected */
+        .selected-red {
+            background-color: #ff725e !important;
+            color: #000000 !important;
+            box-shadow: 8px 8px 0px 0px rgba(255, 114, 94, 0.3);
         }
-        .pixel-border-red {
-            border: 4px solid #ff725e;
+        .selected-red span, .selected-red div { color: #000000 !important; border-color: #000000 !important; }
+        .selected-red .stock-icon { stroke: #000000 !important; }
+
+        /* When GREEN is selected */
+        .selected-green {
+            background-color: #9cff93 !important;
+            color: #000000 !important;
+            box-shadow: 8px 8px 0px 0px rgba(156, 255, 147, 0.3);
         }
-        .pixel-border-green {
-            border: 4px solid #9cff93;
+        .selected-green span, .selected-green div { color: #000000 !important; border-color: #000000 !important; }
+        .selected-green .stock-icon { stroke: #000000 !important; }
+
+        .stock-icon {
+            fill: none;
+            stroke-width: 3;
+            stroke-linecap: square;
         }
     </style>
 </head>
+
 <body class="min-h-screen flex flex-col items-center justify-center p-4">
-<main class="max-w-3xl w-full flex flex-col items-center space-y-12">
-<!-- Header -->
-<h1 class="text-5xl md:text-7xl text-center">CREATE NEW PLAYER</h1>
-<!-- Top Section: Profile & Name -->
-<div class="w-full flex flex-col md:flex-row items-center md:items-start gap-8">
-<!-- Profile Square -->
-<div class="w-48 h-48 pixel-border flex items-center justify-center flex-shrink-0">
-<span class="text-4xl opacity-50">IMG</span>
-</div>
-<!-- Name Input -->
-<div class="w-full space-y-4">
-<label class="text-3xl block border-b-4 border-white pb-1">ENTER NAME</label>
-<input class="w-full bg-transparent border-4 border-white text-5xl p-4 focus:ring-0 focus:outline-none uppercase" placeholder="NAME..." type="text" value="BUBBLES"/>
-</div>
-</div>
-<!-- Middle Section: Starting Funds -->
-<div class="w-full space-y-8">
-<h2 class="text-4xl text-center border-b-4 border-white pb-2 inline-block mx-auto w-full">CHOOSE STARTING FUNDS</h2>
-<div class="flex flex-col md:flex-row items-center justify-center gap-8">
-<!-- Option Left -->
-<button class="flex flex-col items-center p-6 pixel-border-red bg-transparent hover:bg-secondary/10 transition-colors w-full md:w-64 space-y-4">
-<span class="text-secondary text-5xl font-bold">-500$</span>
-<div class="w-24 h-24 border-2 border-secondary/50 flex items-center justify-center">
-<span class="text-secondary/50 text-xl">IMG</span>
-</div>
-<span class="text-secondary text-2xl">SPAWN IN LUNDERWORLD</span>
-</button>
-<div class="text-4xl border-4 border-white rounded-full w-16 h-16 flex items-center justify-center flex-shrink-0">OR</div>
-<!-- Option Right -->
-<button class="flex flex-col items-center p-6 pixel-border-green bg-transparent hover:bg-primary/10 transition-colors w-full md:w-64 space-y-4">
-<span class="text-primary text-5xl font-bold">+500$</span>
-<div class="w-24 h-24 border-2 border-primary/50 flex items-center justify-center">
-<span class="text-primary/50 text-xl">IMG</span>
-</div>
-<span class="text-primary text-2xl">SPAWN IN LEADWORLD</span>
-</button>
-</div>
-</div>
-<!-- Bottom Section: Confirm -->
-<div class="w-full pt-8 flex justify-center">
-<button onclick="window.location.href='../drink_menu_simplified/code.html';" class="px-16 py-6 border-4 border-white bg-transparent hover:bg-white hover:text-black transition-all text-5xl active:scale-95">
+    <main class="max-w-3xl w-full flex flex-col items-center space-y-12 py-8">
+        
+        <h1 class="text-5xl md:text-7xl text-center tracking-tighter">CREATE NEW PLAYER</h1>
+
+        <div class="w-full flex flex-col md:flex-row items-center md:items-start gap-8">
+            <div class="w-48 h-48 pixel-border flex items-center justify-center flex-shrink-0 bg-zinc-900 overflow-hidden">
+                <img src="character.png" alt="Character" class="w-full h-full object-contain pixel-image" />
+            </div>
+            
+            <div class="w-full space-y-4">
+                <label class="text-3xl block border-b-4 border-white pb-1">ENTER NAME</label>
+                <input class="w-full bg-transparent border-4 border-white text-5xl p-4 focus:ring-4 focus:ring-primary focus:outline-none uppercase" placeholder="NAME..." type="text"/>
+            </div>
+        </div>
+
+        <div class="w-full space-y-8">
+            <h2 class="text-4xl text-center border-b-4 border-white pb-2 inline-block mx-auto w-full">CHOOSE STARTING FUNDS</h2>
+            
+            <div class="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12">
+                
+                <button id="btn-red" onclick="selectOption('red')" class="option-button flex flex-col items-center p-6 border-4 border-secondary bg-transparent hover:bg-secondary/10 w-full md:w-72 space-y-4">
+                    <span class="text-secondary text-5xl font-bold">-500$</span>
+                    <div class="w-28 h-28 border-2 border-secondary/40 flex items-center justify-center">
+                        <svg class="w-20 h-20 stock-icon stroke-secondary" viewBox="0 0 24 24">
+                            <path d="M2 6 L8 12 L14 8 L22 18 M16 18 H22 V12" />
+                        </svg>
+                    </div>
+                    <span class="text-secondary text-2xl leading-none">SPAWN IN<br>LUNDERWORLD</span>
+                </button>
+
+                <div class="text-3xl border-4 border-white rounded-full w-14 h-14 flex items-center justify-center flex-shrink-0 bg-black z-10">OR</div>
+
+                <button id="btn-green" onclick="selectOption('green')" class="option-button flex flex-col items-center p-6 border-4 border-primary bg-transparent hover:bg-primary/10 w-full md:w-72 space-y-4">
+                    <span class="text-primary text-5xl font-bold">+500$</span>
+                    <div class="w-28 h-28 border-2 border-primary/40 flex items-center justify-center">
+                        <svg class="w-20 h-20 stock-icon stroke-primary" viewBox="0 0 24 24">
+                            <path d="M2 18 L8 12 L14 16 L22 6 M16 6 H22 V12" />
+                        </svg>
+                    </div>
+                    <span class="text-primary text-2xl leading-none">SPAWN IN<br>LEADERWORLD</span>
+                </button>
+
+            </div>
+        </div>
+
+        <div class="w-full pt-4 flex justify-center">
+            <button onclick="confirmSelection()" class="px-16 py-6 border-4 border-white bg-transparent hover:bg-white hover:text-black transition-all text-5xl active:translate-y-1">
                 CONFIRM
             </button>
-</div>
-</main>
-</body></html>
+        </div>
+    </main>
+
+    <script>
+        function selectOption(choice) {
+            const redBtn = document.getElementById('btn-red');
+            const greenBtn = document.getElementById('btn-green');
+
+            if (choice === 'red') {
+                redBtn.classList.add('selected-red');
+                greenBtn.classList.remove('selected-green');
+            } else {
+                greenBtn.classList.add('selected-green');
+                redBtn.classList.remove('selected-red');
+            }
+        }
+
+        function confirmSelection() {
+            const redSelected = document.getElementById('btn-red').classList.contains('selected-red');
+            const greenSelected = document.getElementById('btn-green').classList.contains('selected-green');
+
+            if (!redSelected && !greenSelected) {
+                alert("ACCESS DENIED: SELECT STARTING FUNDS");
+                return;
+            }
+            
+            window.location.href = '../drink_menu/code.html';
+        }
+    </script>
+</body>
+</html>
