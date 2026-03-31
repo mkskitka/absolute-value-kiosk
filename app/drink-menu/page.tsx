@@ -1,24 +1,182 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useGame } from "../context/GameContext";
-import { drinks } from "../data/drinks";
+import { API_BASE_URL, type Drink } from "../types";
+
+/* Neon palette cycled per drink index for visual flair */
+const NEON_COLORS = [
+  "#FF3131",
+  "#00D1FF",
+  "#FF00FF",
+  "#FFFF00",
+  "#00FFFF",
+  "#FF6B00",
+  "#39FF14",
+  "#BF00FF",
+];
+
+function drinkColor(index: number): string {
+  return NEON_COLORS[index % NEON_COLORS.length];
+}
+
+function ingredientNames(drink: Drink): string[] {
+  return drink.parts.map((p) => p.ingredient.name);
+}
 
 export default function DrinkMenuPage() {
   const router = useRouter();
-  const { playerName, currentFunds, setSelectedDrink } = useGame();
+  const { playerName, currentFunds, userId, setSelectedDrink, setCurrentFunds } =
+    useGame();
+  const [drinks, setDrinks] = useState<Drink[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [isOrdering, setIsOrdering] = useState(false);
+  const [rankInfo, setRankInfo] = useState<{ rank: number; total: number; isLeaderboard: boolean; maxScore: number; minScore: number; myScore: number } | null>(null);
+
+  useEffect(() => {
+    async function fetchDrinks() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/drinks`);
+        if (!res.ok) throw new Error(`Server error ${res.status}`);
+        const data: Drink[] = await res.json();
+        setDrinks(data);
+      } catch (err) {
+        console.error("Failed to fetch drinks:", err);
+        setError("Could not load the drink menu. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchDrinks();
+  }, []);
+
+  useEffect(() => {
+    async function fetchRankInfo() {
+      try {
+        if (!userId) return;
+        const res = await fetch(`${API_BASE_URL}/api/users`);
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        let maxScore = 2000;
+        let minScore = -200;
+        if (data.length > 0) {
+          const scores = data.map((u: any) => u.credits);
+          maxScore = Math.max(...scores, 100);
+          minScore = Math.min(...scores, -100);
+        }
+
+        const me = data.find((u: any) => u.id === userId);
+        if (!me) return;
+
+        const isLeaderboard = me.credits >= 0;
+        let myRank = -1;
+        if (isLeaderboard) {
+          const leaderboard = data.filter((u: any) => u.credits >= 0).sort((a: any, b: any) => b.credits - a.credits);
+          myRank = leaderboard.findIndex((u: any) => u.id === userId) + 1;
+        } else {
+          const lunderboard = data.filter((u: any) => u.credits < 0).sort((a: any, b: any) => a.credits - b.credits);
+          myRank = lunderboard.findIndex((u: any) => u.id === userId) + 1;
+        }
+
+        setRankInfo({ 
+          rank: myRank, 
+          total: data.length, 
+          isLeaderboard,
+          maxScore,
+          minScore,
+          myScore: me.credits
+        });
+
+      } catch (err) {
+        console.error("Failed to fetch rank info:", err);
+      }
+    }
+    fetchRankInfo();
+  }, [userId]);
+
 
   const selectedDrink = selectedIndex >= 0 ? drinks[selectedIndex] : null;
   const drinkCost = selectedDrink?.price ?? 0;
   const balance = currentFunds - drinkCost;
+  const selectedColor = selectedIndex >= 0 ? drinkColor(selectedIndex) : "#FFF";
 
-  function handleOrder() {
-    if (!selectedDrink) return;
-    setSelectedDrink(selectedDrink);
-    router.push("/change-economy");
+  let markerTop = "50%";
+  if (rankInfo) {
+    const range = rankInfo.maxScore - rankInfo.minScore;
+    if (range > 0) {
+      const ratio = (rankInfo.maxScore - rankInfo.myScore) / range;
+      markerTop = `${Math.max(0, Math.min(100, ratio * 100))}%`;
+    }
+  }
+
+  async function handleOrder() {
+    if (!selectedDrink || isOrdering) return;
+    setIsOrdering(true);
+
+    try {
+      // Queue the drink on the server if we have a userId
+      if (userId) {
+        const orderRes = await fetch(`${API_BASE_URL}/api/orders`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId,
+            drinkId: selectedDrink.id,
+          }),
+        });
+
+        if (!orderRes.ok) {
+          const err = await orderRes.json().catch(() => ({}));
+          console.error("[DrinkMenu] Failed to queue drink:", err);
+          // If they already have a queued drink (409), continue anyway
+          if (orderRes.status !== 409) {
+            alert("SYSTEM ERROR: COULD NOT QUEUE DRINK. TRY AGAIN.");
+            setIsOrdering(false);
+            return;
+          }
+        }
+      }
+
+      // Update local state — deduct cost locally for display
+      setSelectedDrink(selectedDrink);
+      setCurrentFunds(balance);
+
+      try {
+        const usersRes = await fetch(`${API_BASE_URL}/api/users`);
+        if (usersRes.ok) {
+          const users = await usersRes.json();
+          const me = users.find((u: any) => u.id === userId);
+          if (me) {
+            const isLeaderboard = me.credits >= 0;
+            let myRank = -1;
+            if (isLeaderboard) {
+              const leaderboard = users.filter((u: any) => u.credits >= 0).sort((a: any, b: any) => b.credits - a.credits);
+              myRank = leaderboard.findIndex((u: any) => u.id === userId) + 1;
+            } else {
+              const lunderboard = users.filter((u: any) => u.credits < 0).sort((a: any, b: any) => a.credits - b.credits);
+              myRank = lunderboard.findIndex((u: any) => u.id === userId) + 1;
+            }
+            if (myRank >= 1 && myRank <= 3) {
+              router.push("/change-economy");
+              return;
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to check rank for economy routing:", err);
+      }
+      
+      router.push("/thank-you");
+    } catch (err) {
+      console.error("[DrinkMenu] Order failed:", err);
+      alert("SYSTEM ERROR: COULD NOT PLACE ORDER. TRY AGAIN.");
+      setIsOrdering(false);
+    }
   }
 
   return (
@@ -70,7 +228,7 @@ export default function DrinkMenuPage() {
             </h2>
             <div className="flex items-start gap-8 py-4">
               <div className="flex flex-col items-center">
-                <div className="text-xl mb-2">2000</div>
+                <div className="text-xl mb-2">{rankInfo?.maxScore ?? 2000}</div>
                 <div className="relative h-64" style={{ width: 2, background: "#fff" }}>
                   {/* Top tick */}
                   <div
@@ -85,12 +243,12 @@ export default function DrinkMenuPage() {
                   />
                   {/* Rank marker */}
                   <div
-                    className="absolute"
-                    style={{ top: "15%", left: 0 }}
+                    className="absolute transition-all duration-1000 ease-in-out"
+                    style={{ top: markerTop, left: 0 }}
                   >
                     <div className="w-0 h-0 border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent border-r-[12px] border-r-neon-green absolute right-full top-1/2 -translate-y-1/2 mr-2" />
-                    <div className="whitespace-nowrap ml-4 text-xl text-neon-green">
-                      #20
+                    <div className="whitespace-nowrap ml-4 text-xl text-neon-green bg-black/50 px-2 rounded">
+                      #{rankInfo?.rank ?? "?"}
                     </div>
                   </div>
                   {/* Bottom tick */}
@@ -105,10 +263,17 @@ export default function DrinkMenuPage() {
                     }}
                   />
                 </div>
-                <div className="text-xl mt-2">-200</div>
+                <div className="text-xl mt-2">{rankInfo?.minScore ?? -200}</div>
               </div>
-              <div className="text-7xl text-neon-green text-glow-green self-center">
-                #20
+              <div className="flex flex-col justify-center">
+                <div className="text-7xl text-neon-green text-glow-green">
+                  #{rankInfo?.rank ?? "?"}
+                </div>
+                {rankInfo && (
+                  <div className={`mt-2 text-xl font-bold tracking-widest ${rankInfo.isLeaderboard ? 'text-neon-green' : 'text-neon-red'}`}>
+                    {rankInfo.isLeaderboard ? 'LEADERBOARD' : 'LUNDERBOARD'}
+                  </div>
+                )}
               </div>
             </div>
           </section>
@@ -120,43 +285,59 @@ export default function DrinkMenuPage() {
             <h2 className="text-5xl mb-6 border-b-2 border-white pb-2 text-center md:text-left">
               Drink Menu
             </h2>
-            <div className="grid grid-cols-1 max-h-[300px] overflow-y-auto custom-scrollbar border-b-2 border-white pb-[2px]">
-              {drinks.map((drink, index) => {
-                const isActive = selectedIndex === index;
-                const borderColor = isActive ? drink.color : "#FFFFFF";
-                const textColor = isActive ? drink.color : "#FFFFFF";
-                const glow = isActive
-                  ? `0 0 15px ${drink.color}`
-                  : undefined;
 
-                return (
-                  <div
-                    key={drink.id}
-                    onClick={() => setSelectedIndex(index)}
-                    className={`drink-item flex justify-between items-center p-4 cursor-pointer hover:bg-zinc-900 ${
-                      isActive ? "active" : ""
-                    }`}
-                    style={{
-                      borderColor,
-                      boxShadow: glow,
-                    }}
-                  >
-                    <span
-                      className="text-2xl transition-colors"
-                      style={{ color: textColor }}
+            {loading && (
+              <div className="text-2xl text-white/60 text-center py-12 animate-pulse">
+                Loading menu...
+              </div>
+            )}
+
+            {error && (
+              <div className="text-2xl text-neon-red text-center py-12">
+                {error}
+              </div>
+            )}
+
+            {!loading && !error && (
+              <div className="grid grid-cols-1 max-h-[300px] overflow-y-auto custom-scrollbar border-b-2 border-white pb-[2px]">
+                {drinks.map((drink, index) => {
+                  const isActive = selectedIndex === index;
+                  const color = drinkColor(index);
+                  const borderColor = isActive ? color : "#FFFFFF";
+                  const textColor = isActive ? color : "#FFFFFF";
+                  const glow = isActive
+                    ? `0 0 15px ${color}`
+                    : undefined;
+
+                  return (
+                    <div
+                      key={drink.id}
+                      onClick={() => setSelectedIndex(index)}
+                      className={`drink-item flex justify-between items-center p-4 cursor-pointer hover:bg-zinc-900 ${
+                        isActive ? "active" : ""
+                      }`}
+                      style={{
+                        borderColor,
+                        boxShadow: glow,
+                      }}
                     >
-                      {drink.name} | {drink.base}
-                    </span>
-                    <span
-                      className="text-2xl transition-colors"
-                      style={{ color: textColor }}
-                    >
-                      ${drink.price}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+                      <span
+                        className="text-2xl transition-colors"
+                        style={{ color: textColor }}
+                      >
+                        {drink.name}
+                      </span>
+                      <span
+                        className="text-2xl transition-colors"
+                        style={{ color: textColor }}
+                      >
+                        ${drink.price}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </section>
 
           {/* Selected drink detail */}
@@ -166,18 +347,26 @@ export default function DrinkMenuPage() {
                 <div
                   className="w-48 h-48 border-4 flex items-center justify-center overflow-hidden transition-all duration-300 shrink-0"
                   style={{
-                    backgroundColor: selectedDrink.color,
-                    borderColor: selectedDrink.color,
-                    boxShadow: `0 0 20px ${selectedDrink.color}88`,
+                    backgroundColor: selectedColor,
+                    borderColor: selectedColor,
+                    boxShadow: `0 0 20px ${selectedColor}88`,
                   }}
                 >
-                  <Image
-                    src="/images/drink.png"
-                    alt="Drink Preview"
-                    width={192}
-                    height={192}
-                    className="w-full h-full object-cover pixel-image"
-                  />
+                  {selectedDrink.imageURL ? (
+                    <img
+                      src={selectedDrink.imageURL}
+                      alt={selectedDrink.name}
+                      className="w-full h-full object-cover pixel-image"
+                    />
+                  ) : (
+                    <Image
+                      src="/images/drink.png"
+                      alt="Drink Preview"
+                      width={192}
+                      height={192}
+                      className="w-full h-full object-cover pixel-image"
+                    />
+                  )}
                 </div>
 
                 <div className="flex flex-col gap-2 min-w-[150px]">
@@ -185,7 +374,7 @@ export default function DrinkMenuPage() {
                     Ingredients:
                   </h3>
                   <ul className="text-xl space-y-1 text-white/80">
-                    {selectedDrink.ingredients.map((ing) => (
+                    {ingredientNames(selectedDrink).map((ing) => (
                       <li key={ing}>- {ing}</li>
                     ))}
                   </ul>

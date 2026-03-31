@@ -14,17 +14,19 @@ export default function WelcomePage() {
   const onTokenRead = useCallback(
     async (rfid: string) => {
       try {
+        console.log("[RFID] Token read, looking up:", rfid);
         const res = await fetch(`${API_BASE_URL}/api/users/rfidInfo/${rfid}`);
+        console.log("[RFID] Response status:", res.status);
         if (res.ok) {
           const user = await res.json();
-          // Known user — populate context and go to drink menu
+          console.log("[RFID] Known user:", user.username, "→ /drink-menu");
           setRfid(rfid);
           setUserId(user.id);
           setPlayerName(user.username);
           setCurrentFunds(user.credits);
           router.push("/drink-menu");
         } else {
-          // Unknown card — go to registration
+          console.log("[RFID] Unknown card, status:", res.status, "→ /create-player");
           setRfid(rfid);
           router.push("/create-player");
         }

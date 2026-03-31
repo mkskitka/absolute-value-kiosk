@@ -1,10 +1,18 @@
+export interface DrinkPart {
+  id: string;
+  amount: number;
+  ingredient: {
+    id: string;
+    name: string;
+  };
+}
+
 export interface Drink {
-  id: number;
+  id: string;
   name: string;
-  base: string;
   price: number;
-  color: string;
-  ingredients: string[];
+  imageURL: string | null;
+  parts: DrinkPart[];
 }
 
 export type FundChoice = "leader" | "lunder" | null;
@@ -24,6 +32,6 @@ export interface GameState {
   economyChoice: EconomyChoice | null;
 }
 
-export const IDLE_TIMEOUT_MS = 20_000;
+export const IDLE_TIMEOUT_MS = 200_000;
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://192.168.1.38:3000";
