@@ -16,6 +16,8 @@ export interface EconomyChoice {
 
 export interface GameState {
   playerName: string;
+  rfid: string | null;
+  userId: string | null;
   fundChoice: FundChoice;
   currentFunds: number;
   selectedDrink: Drink | null;
