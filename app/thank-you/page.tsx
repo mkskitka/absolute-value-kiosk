@@ -1,12 +1,45 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useGame } from "../context/GameContext";
 import CrtOverlay from "../components/CrtOverlay";
+import { API_BASE_URL } from "../types";
 
 export default function ThankYouPage() {
   const router = useRouter();
-  const { resetGame } = useGame();
+  const { userId, resetGame, setCurrentFunds } = useGame();
+  const hasPoured = useRef(false);
+
+  // Pour the queued drink on mount — this deducts credits on the server
+  useEffect(() => {
+    if (!userId || hasPoured.current) return;
+    hasPoured.current = true;
+
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/pour`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId }),
+        });
+        if (res.ok) {
+          // Fetch updated user to sync credits
+          const userRes = await fetch(`${API_BASE_URL}/api/users/${userId}`);
+          if (userRes.ok) {
+            const user = await userRes.json();
+            setCurrentFunds(user.credits);
+          }
+          console.log("[ThankYou] Drink poured successfully");
+        } else {
+          const err = await res.json().catch(() => ({}));
+          console.error("[ThankYou] Pour failed:", err);
+        }
+      } catch (err) {
+        console.error("[ThankYou] Pour request failed:", err);
+      }
+    })();
+  }, [userId, setCurrentFunds]);
 
   function handleReturn() {
     resetGame();

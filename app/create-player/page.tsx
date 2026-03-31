@@ -5,14 +5,17 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useGame } from "../context/GameContext";
 import type { FundChoice } from "../types";
+import { API_BASE_URL } from "../types";
 
 export default function CreatePlayerPage() {
   const router = useRouter();
-  const { setPlayerName, setFundChoice } = useGame();
+  const { rfid, setPlayerName, setFundChoice, setUserId, setCurrentFunds } =
+    useGame();
   const [name, setName] = useState("");
   const [choice, setChoice] = useState<FundChoice>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handleConfirm() {
+  async function handleConfirm() {
     if (name.trim() === "") {
       alert("ACCESS DENIED: ENTER PLAYER NAME");
       return;
@@ -21,9 +24,52 @@ export default function CreatePlayerPage() {
       alert("ACCESS DENIED: SELECT STARTING FUNDS");
       return;
     }
-    setPlayerName(name.trim().toUpperCase());
-    setFundChoice(choice);
-    router.push("/drink-menu");
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
+    const username = name.trim().toUpperCase();
+    const startingCredits = choice === "leader" ? 500 : -500;
+
+    try {
+      // 1. Create user on the server
+      const userRes = await fetch(`${API_BASE_URL}/api/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, rfid: rfid || `manual-${Date.now()}` }),
+      });
+      if (!userRes.ok) {
+        throw new Error(`Failed to create user: ${userRes.status}`);
+      }
+      const user = await userRes.json();
+
+      // 2. Create starting credits transaction
+      const txRes = await fetch(`${API_BASE_URL}/api/transactions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          amount: startingCredits,
+          type: "ADMINACTION",
+          note: `Starting funds: ${choice === "leader" ? "Leaderworld (+500)" : "Lunderworld (-500)"}`,
+        }),
+      });
+      if (!txRes.ok) {
+        throw new Error(`Failed to create starting credits: ${txRes.status}`);
+      }
+      const txResult = await txRes.json();
+
+      // 3. Update local game state
+      setPlayerName(username);
+      setFundChoice(choice);
+      setUserId(user.id);
+      setCurrentFunds(txResult.user.credits);
+
+      router.push("/drink-menu");
+    } catch (err) {
+      console.error("[CreatePlayer] Failed to create player:", err);
+      alert("SYSTEM ERROR: COULD NOT CREATE PLAYER. TRY AGAIN.");
+      setIsSubmitting(false);
+    }
   }
 
   return (

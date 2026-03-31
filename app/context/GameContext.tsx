@@ -11,6 +11,8 @@ import type { Drink, FundChoice, EconomyChoice, GameState } from "../types";
 
 interface GameContextValue extends GameState {
   setPlayerName: (name: string) => void;
+  setRfid: (rfid: string | null) => void;
+  setUserId: (id: string | null) => void;
   setFundChoice: (choice: FundChoice) => void;
   setCurrentFunds: (funds: number) => void;
   setSelectedDrink: (drink: Drink | null) => void;
@@ -20,6 +22,8 @@ interface GameContextValue extends GameState {
 
 const initialState: GameState = {
   playerName: "",
+  rfid: null,
+  userId: null,
   fundChoice: null,
   currentFunds: 0,
   selectedDrink: null,
@@ -33,6 +37,16 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   const setPlayerName = useCallback(
     (name: string) => setState((prev) => ({ ...prev, playerName: name })),
+    []
+  );
+
+  const setRfid = useCallback(
+    (rfid: string | null) => setState((prev) => ({ ...prev, rfid })),
+    []
+  );
+
+  const setUserId = useCallback(
+    (id: string | null) => setState((prev) => ({ ...prev, userId: id })),
     []
   );
 
@@ -70,6 +84,8 @@ export function GameProvider({ children }: { children: ReactNode }) {
       value={{
         ...state,
         setPlayerName,
+        setRfid,
+        setUserId,
         setFundChoice,
         setCurrentFunds,
         setSelectedDrink,

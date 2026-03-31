@@ -1,9 +1,48 @@
 "use client";
 
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useGame } from "./context/GameContext";
+import { useMenuEvents } from "./hooks/useMenuEvents";
+import { API_BASE_URL } from "./types";
 
 export default function WelcomePage() {
   const router = useRouter();
+  const { setPlayerName, setRfid, setUserId, setCurrentFunds, resetGame } =
+    useGame();
+
+  const onTokenRead = useCallback(
+    async (rfid: string) => {
+      try {
+        console.log("[RFID] Token read, looking up:", rfid);
+        const res = await fetch(`${API_BASE_URL}/api/users/rfidInfo/${rfid}`);
+        console.log("[RFID] Response status:", res.status);
+        if (res.ok) {
+          const user = await res.json();
+          console.log("[RFID] Known user:", user.username, "→ /drink-menu");
+          setRfid(rfid);
+          setUserId(user.id);
+          setPlayerName(user.username);
+          setCurrentFunds(user.credits);
+          router.push("/drink-menu");
+        } else {
+          console.log("[RFID] Unknown card, status:", res.status, "→ /create-player");
+          setRfid(rfid);
+          router.push("/create-player");
+        }
+      } catch (err) {
+        console.error("[RFID] Failed to look up user:", err);
+      }
+    },
+    [setRfid, setUserId, setPlayerName, setCurrentFunds, router]
+  );
+
+  const onTokenRemoved = useCallback(() => {
+    resetGame();
+    router.push("/");
+  }, [resetGame, router]);
+
+  useMenuEvents({ onTokenRead, onTokenRemoved });
 
   return (
     <main
@@ -37,3 +76,4 @@ export default function WelcomePage() {
     </main>
   );
 }
+

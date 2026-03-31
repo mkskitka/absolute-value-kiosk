@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html class="dark" lang="en">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Absolute Value - Create New Player</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=VT323&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&amp;display=swap" rel="stylesheet" />
     <script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              "primary": "#9cff93",   /* Neon Green */
-              "secondary": "#ff725e", /* Neon Red */
-              "background": "#000000",
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#9cff93",   /* Neon Green */
+                        "secondary": "#ff725e", /* Neon Red */
+                        "background": "#000000",
+                    },
+                    fontFamily: {
+                        "pixel": ["VT323", "monospace"],
+                    },
+                },
             },
-            fontFamily: {
-              "pixel": ["VT323", "monospace"],
-            },
-          },
-        },
-      }
+        }
     </script>
     <style>
         body {
@@ -30,31 +31,55 @@
             font-family: 'VT323', monospace;
             text-transform: uppercase;
         }
-        input::placeholder { color: #555555; }
-        .pixel-border { border: 4px solid white; }
-        
+
+        input::placeholder {
+            color: #555555;
+        }
+
+        .pixel-border {
+            border: 4px solid white;
+        }
+
         .pixel-image {
             image-rendering: pixelated;
             image-rendering: crisp-edges;
         }
 
-        .option-button { transition: all 0.15s steps(4); }
-        
+        .option-button {
+            transition: all 0.15s steps(4);
+        }
+
         .selected-red {
             background-color: #ff725e !important;
             color: #000000 !important;
             box-shadow: 8px 8px 0px 0px rgba(255, 114, 94, 0.3);
         }
-        .selected-red span, .selected-red div { color: #000000 !important; border-color: #000000 !important; }
-        .selected-red .stock-icon { stroke: #000000 !important; }
+
+        .selected-red span,
+        .selected-red div {
+            color: #000000 !important;
+            border-color: #000000 !important;
+        }
+
+        .selected-red .stock-icon {
+            stroke: #000000 !important;
+        }
 
         .selected-green {
             background-color: #9cff93 !important;
             color: #000000 !important;
             box-shadow: 8px 8px 0px 0px rgba(156, 255, 147, 0.3);
         }
-        .selected-green span, .selected-green div { color: #000000 !important; border-color: #000000 !important; }
-        .selected-green .stock-icon { stroke: #000000 !important; }
+
+        .selected-green span,
+        .selected-green div {
+            color: #000000 !important;
+            border-color: #000000 !important;
+        }
+
+        .selected-green .stock-icon {
+            stroke: #000000 !important;
+        }
 
         .stock-icon {
             fill: none;
@@ -66,26 +91,31 @@
 
 <body class="min-h-screen flex flex-col items-center justify-center p-4">
     <main class="max-w-3xl w-full flex flex-col items-center space-y-12 py-8">
-        
+
         <h1 class="text-5xl md:text-7xl text-center tracking-tighter">CREATE NEW PLAYER</h1>
 
         <div class="w-full flex flex-col md:flex-row items-center md:items-start gap-8">
-            <div class="w-48 h-48 pixel-border flex items-center justify-center flex-shrink-0 bg-zinc-900 overflow-hidden">
+            <div
+                class="w-48 h-48 pixel-border flex items-center justify-center flex-shrink-0 bg-zinc-900 overflow-hidden">
                 <img src="character.png" alt="Character" class="w-full h-full object-contain pixel-image" />
             </div>
-            
+
             <div class="w-full space-y-4">
                 <label class="text-3xl block border-b-4 border-white pb-1">ENTER NAME</label>
-                <input id="player-name" class="w-full bg-transparent border-4 border-white text-5xl p-4 focus:ring-4 focus:ring-primary focus:outline-none uppercase" placeholder="NAME..." type="text"/>
+                <input id="player-name"
+                    class="w-full bg-transparent border-4 border-white text-5xl p-4 focus:ring-4 focus:ring-primary focus:outline-none uppercase"
+                    placeholder="NAME..." type="text" />
             </div>
         </div>
 
         <div class="w-full space-y-8">
-            <h2 class="text-4xl text-center border-b-4 border-white pb-2 inline-block mx-auto w-full">CHOOSE STARTING FUNDS</h2>
-            
+            <h2 class="text-4xl text-center border-b-4 border-white pb-2 inline-block mx-auto w-full">CHOOSE STARTING
+                FUNDS</h2>
+
             <div class="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12">
-                
-                <button id="btn-red" onclick="selectOption('red')" class="option-button flex flex-col items-center p-6 border-4 border-secondary bg-transparent hover:bg-secondary/10 w-full md:w-72 space-y-4">
+
+                <button id="btn-red" onclick="selectOption('red')"
+                    class="option-button flex flex-col items-center p-6 border-4 border-secondary bg-transparent hover:bg-secondary/10 w-full md:w-72 space-y-4">
                     <span class="text-secondary text-5xl font-bold">-500$</span>
                     <div class="w-28 h-28 border-2 border-secondary/40 flex items-center justify-center">
                         <svg class="w-20 h-20 stock-icon stroke-secondary" viewBox="0 0 24 24">
@@ -95,9 +125,12 @@
                     <span class="text-secondary text-2xl leading-none">SPAWN IN<br>LUNDERWORLD</span>
                 </button>
 
-                <div class="text-3xl border-4 border-white rounded-full w-14 h-14 flex items-center justify-center flex-shrink-0 bg-black z-10">OR</div>
+                <div
+                    class="text-3xl border-4 border-white rounded-full w-14 h-14 flex items-center justify-center flex-shrink-0 bg-black z-10">
+                    OR</div>
 
-                <button id="btn-green" onclick="selectOption('green')" class="option-button flex flex-col items-center p-6 border-4 border-primary bg-transparent hover:bg-primary/10 w-full md:w-72 space-y-4">
+                <button id="btn-green" onclick="selectOption('green')"
+                    class="option-button flex flex-col items-center p-6 border-4 border-primary bg-transparent hover:bg-primary/10 w-full md:w-72 space-y-4">
                     <span class="text-primary text-5xl font-bold">+500$</span>
                     <div class="w-28 h-28 border-2 border-primary/40 flex items-center justify-center">
                         <svg class="w-20 h-20 stock-icon stroke-primary" viewBox="0 0 24 24">
@@ -111,7 +144,8 @@
         </div>
 
         <div class="w-full pt-4 flex justify-center">
-            <button onclick="confirmSelection()" class="px-16 py-6 border-4 border-white bg-transparent hover:bg-white hover:text-black transition-all text-5xl active:translate-y-1">
+            <button onclick="confirmSelection()"
+                class="px-16 py-6 border-4 border-white bg-transparent hover:bg-white hover:text-black transition-all text-5xl active:translate-y-1">
                 CONFIRM
             </button>
         </div>
@@ -134,7 +168,7 @@
         function confirmSelection() {
             // 1. Check the Name input
             const playerName = document.getElementById('player-name').value.trim();
-            
+
             // 2. Check the selection classes
             const redSelected = document.getElementById('btn-red').classList.contains('selected-red');
             const greenSelected = document.getElementById('btn-green').classList.contains('selected-green');
@@ -149,10 +183,11 @@
                 alert("ACCESS DENIED: SELECT STARTING FUNDS");
                 return; // Stop here
             }
-            
+
             // If both checks pass, move to the next page
             window.location.href = '../drink_menu/code.html';
         }
     </script>
 </body>
+
 </html>

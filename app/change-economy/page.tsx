@@ -1,15 +1,85 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import { useGame } from "../context/GameContext";
 import type { EconomyChoice } from "../types";
 
 export default function ChangeEconomyPage() {
   const router = useRouter();
-  const { setEconomyChoice } = useGame();
+  const { setEconomyChoice, userId } = useGame();
+  const [rankInfo, setRankInfo] = useState<{ rank: number; total: number; isLeaderboard: boolean } | null>(null);
 
-  function handleChoice(choice: EconomyChoice) {
+  useEffect(() => {
+    async function fetchRank() {
+      try {
+        if (!userId) return;
+        
+        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3001";
+        const res = await fetch(`${serverUrl}/api/users`);
+        if (!res.ok) return;
+        const users = await res.json();
+        
+        const me = users.find((u: any) => u.id === userId);
+        if (!me) return;
+        
+        const isLeaderboard = me.credits >= 0;
+        
+        if (isLeaderboard) {
+          const leaderboard = users.filter((u: any) => u.credits >= 0).sort((a: any, b: any) => b.credits - a.credits);
+          const myRank = leaderboard.findIndex((u: any) => u.id === userId) + 1;
+          setRankInfo({ rank: myRank, total: leaderboard.length, isLeaderboard });
+        } else {
+          const lunderboard = users.filter((u: any) => u.credits < 0).sort((a: any, b: any) => a.credits - b.credits);
+          const myRank = lunderboard.findIndex((u: any) => u.id === userId) + 1;
+          setRankInfo({ rank: myRank, total: lunderboard.length, isLeaderboard });
+        }
+      } catch (e) {
+        console.error("Failed to fetch rank", e);
+      }
+    }
+    fetchRank();
+  }, [userId]);
+
+  async function handleChoice(choice: EconomyChoice) {
     setEconomyChoice(choice);
+
+    try {
+      const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3001";
+      // Get current modifiers
+      const getRes = await fetch(`${serverUrl}/api/modifiers`);
+      if (getRes.ok) {
+        const currentMods = await getRes.json();
+        
+        // Calculate new modifiers
+        const diff = choice.action === "raise" ? 0.1 : -0.1;
+        let body = { ...currentMods };
+        
+        if (choice.zone === "leader") {
+          if (rankInfo?.isLeaderboard) {
+            body.wagesMultiplier = Number((currentMods.wagesMultiplier + diff).toFixed(1));
+          } else {
+            body.gamblingMultiplier = Number((currentMods.gamblingMultiplier + diff).toFixed(1));
+          }
+        } else {
+          // "lunder" zone choice always means DRINK PRICES
+          body.drinkPricesMultiplier = Number(((currentMods.drinkPricesMultiplier || 1.0) + diff).toFixed(1));
+        }
+
+        await fetch(`${serverUrl}/api/modifiers`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            gamblingMultiplier: body.gamblingMultiplier,
+            wagesMultiplier: body.wagesMultiplier,
+            drinkPricesMultiplier: body.drinkPricesMultiplier
+          })
+        });
+      }
+    } catch (err) {
+      console.error("Failed to update modifiers", err);
+    }
+    
     router.push("/thank-you");
   }
 
@@ -19,7 +89,9 @@ export default function ChangeEconomyPage() {
         {/* Header */}
         <section className="w-full max-w-5xl mb-8 md:mb-16 text-center">
           <h1 className="text-4xl sm:text-5xl md:text-7xl tracking-widest mb-4 md:mb-6 leading-tight">
-            YOU ARE CURRENTLY ON THE LEADERBOARD
+            {rankInfo 
+              ? `YOU ARE RANK #${rankInfo.rank} OF ${rankInfo.total} ON THE ${rankInfo.isLeaderboard ? 'LEADERBOARD' : 'LUNDERBOARD'}`
+              : `CALCULATING YOUR RANK...`}
           </h1>
           <p className="text-xl md:text-2xl text-white opacity-70 tracking-[0.2em] md:tracking-[0.3em]">
             CHOOSE 1:
@@ -33,13 +105,13 @@ export default function ChangeEconomyPage() {
             OR
           </div>
 
-          {/* Leader — Wages */}
+          {/* Leader — Wages or Gambling Stakes */}
           <div className="bg-black p-6 md:p-10 border-2 border-white relative flex flex-col">
             <div className="absolute -top-4 md:-top-6 left-4 bg-neon-green text-black px-3 py-0.5 md:px-4 md:py-1 text-lg md:text-xl font-bold italic">
               ZONE: LEADER
             </div>
             <h2 className="text-4xl md:text-6xl text-neon-green text-glow-green mb-8 md:mb-16 text-center tracking-tighter">
-              WAGES
+              {(!rankInfo || rankInfo.isLeaderboard) ? "WAGES" : "GAMBLING STAKES"}
             </h2>
             <div className="flex flex-col gap-4 md:gap-8 flex-1 justify-center">
               <button

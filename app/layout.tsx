@@ -39,6 +39,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`dark ${pressStart2P.variable} ${vt323.variable} ${spaceGrotesk.variable}`}
+      suppressHydrationWarning
     >
       <head>
         <link
